@@ -16,6 +16,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ReceiverActivity"/>
     </application>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 </manifest>
