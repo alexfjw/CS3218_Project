@@ -9,6 +9,7 @@ import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.support.annotation.RequiresApi
 import android.support.v4.content.ContextCompat
+import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -22,6 +23,7 @@ class ReceiverActivity : AppCompatActivity() {
     private var disposable: Disposable? = null
     private val detectedFrequencies: ArrayList<Float> = ArrayList()
     private val alphanumEncoder: AlphanumEncoder = AlphanumEncoder()
+    private var shouldExit = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,9 +32,7 @@ class ReceiverActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        disposable.let {
-            // already has a disposable,
-            // just exit... it means we already missed half the signal
+        if (shouldExit) {
             onBackPressed()
         }
 
@@ -43,8 +43,11 @@ class ReceiverActivity : AppCompatActivity() {
 
     override fun onPause() {
         disposable?.dispose()
+        shouldExit = true
         super.onPause()
     }
+
+    private val TAG = "RecieverActivity"
 
     private fun createSamplingObservable(): Observable<Float> {
         var soundSampler: SoundSampler? = null
@@ -54,9 +57,11 @@ class ReceiverActivity : AppCompatActivity() {
                 soundSampler = SoundSampler(object: SoundSamplerCallback {
                     var started = false
                     override fun heardStartTransmission() {
+                        Log.i(TAG, "Heard the start")
                         started = true
                     }
                     override fun heardEndTransmission(sampler: SoundSampler) {
+                        Log.i(TAG, "Heard the end")
                         emitter.onComplete()
                         sampler.close()
                     }
@@ -81,6 +86,7 @@ class ReceiverActivity : AppCompatActivity() {
                     .doOnComplete {
                         val message = alphanumEncoder.frequenciesToString(detectedFrequencies)
                         Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
+                        Log.i(TAG, message)
                     }
                     .subscribe { detectedFrequencies.add(it) }
 

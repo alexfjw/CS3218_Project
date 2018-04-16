@@ -3,15 +3,18 @@ package org.nus.gmx.cs3218project
 import android.media.AudioRecord
 import android.util.Log
 import edu.emory.mathcs.jtransforms.fft.FloatFFT_1D
+import java.util.*
 import kotlin.math.cos
 
 interface SoundSamplerCallback {
+    // no guarantees on when it is heard
     fun heardStartTransmission()
+    // no guarantees on when it is heard
     fun heardEndTransmission(sampler: SoundSampler)
     fun heardFrequency(freq: Float)
 }
 
-class SoundSampler(val listener: SoundSamplerCallback) {
+class SoundSampler(private val listener: SoundSamplerCallback) {
     val FS = 44100 // sampling frequency
     private val audioEncoding = 2
     private val nChannels = 16
@@ -22,6 +25,11 @@ class SoundSampler(val listener: SoundSamplerCallback) {
     val minBufferSize = 6144
     val suggestedWindowSize = 4096
     val spareBuffer = minBufferSize - suggestedWindowSize
+    private val lastHeardFrequencies = ArrayDeque<Float>()
+
+    private val encoder = AlphanumEncoder()
+    private val queueSize = 5
+    private val thresholdSize = 3
 
     @Throws(Exception::class)
     fun init() {
@@ -90,9 +98,25 @@ class SoundSampler(val listener: SoundSamplerCallback) {
                 highestFrequencies.add(firstFrequency)
         }
         val average = highestFrequencies.average().toFloat()
-        Log.e("hi!", "freqs heard: ${highestFrequencies.joinToString(", ")}")
-        Log.e("hi!", "avg: ${average}")
+        //Log.e("hi!", "freqs heard: ${highestFrequencies.joinToString(", ")}")
+        //Log.e("hi!", "avg: ${average}")
         listener.heardFrequency(average)
+        manageLastHeardFrequencies(average)
+    }
+
+    private fun manageLastHeardFrequencies(newFrequency: Float) {
+        lastHeardFrequencies.add(newFrequency)
+        if (lastHeardFrequencies.size > queueSize) {
+            lastHeardFrequencies.removeFirst()
+        }
+        // check if it is START or END
+        val isStart = lazy { encoder.isStartTransmission(lastHeardFrequencies, thresholdSize) }
+        val isEnd = lazy { encoder.isEndTransmission(lastHeardFrequencies, thresholdSize) }
+        if (isStart.value) {
+            listener.heardStartTransmission()
+        } else if (isEnd.value) {
+            listener.heardEndTransmission(this)
+        }
     }
 
     private fun buildHannWindow(size: Int): FloatArray {

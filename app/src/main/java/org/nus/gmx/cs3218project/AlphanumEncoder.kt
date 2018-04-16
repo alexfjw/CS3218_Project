@@ -2,6 +2,7 @@ package org.nus.gmx.cs3218project
 
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.max
 
 
 class AlphanumEncoder() {
@@ -103,6 +104,48 @@ class AlphanumEncoder() {
     private fun detectedNext(freqs: Queue<AlphanumericGuess>): Boolean {
         val numNexts = freqs.count { it is Next }
         return freqs.size == guessQueueSize && numNexts >= guessThreshold
+    }
+
+    fun isStartTransmission(freqs: ArrayDeque<Float>, minNumber: Int): Boolean {
+        val guesses = freqs.map { frequencyToAlphanumericGuess(it) }
+        val (inLimit, guess) = mostFrequentType(guesses, minNumber)
+        return inLimit && guess is StartTransmission
+    }
+
+    fun isEndTransmission(freqs: ArrayDeque<Float>, minNumber: Int): Boolean {
+        val guesses = freqs.map { frequencyToAlphanumericGuess(it) }
+        val (inLimit, guess) = mostFrequentType(guesses, minNumber)
+        return inLimit && guess is EndTransmission
+    }
+
+    data class MostFrequentType(val inLimit: Boolean, val guess: AlphanumericGuess)
+
+    private fun mostFrequentType(guesses: List<AlphanumericGuess>, minNumber: Int): MostFrequentType {
+        var startTransmission = 0
+        var endTransmission = 0
+        var next = 0
+        var character = 0
+        var unknown = 0
+        guesses.forEach {
+            when(it) {
+                is StartTransmission -> startTransmission++
+                is Next -> next++
+                is EndTransmission -> endTransmission++
+                is Character -> character++
+                is Unknown -> unknown++
+            }
+        }
+        val maxVal = listOf(startTransmission, endTransmission, next, character, unknown).max() ?: 0
+
+        val result = when (maxVal) {
+            startTransmission -> StartTransmission(0f)
+            endTransmission -> EndTransmission(0f)
+            next -> Next(0f)
+            character -> Character(0f, '0')
+            else -> Unknown(0f)
+        }
+
+        return MostFrequentType(maxVal >= minNumber, result)
     }
 
     // assume that frequencies are equal!
