@@ -3,4 +3,8 @@
     <string name="frequency_text">Enter a frequency: </string>
     <string name="play">Play</string>
     <string name="message">Message: </string>
+    <string name="broadcast">Broadcast Message</string>
+    <string name="receive">Receive Message</string>
+    <string name="exit">Exit</string>
+    <string name="back">Back</string>
 </resources>

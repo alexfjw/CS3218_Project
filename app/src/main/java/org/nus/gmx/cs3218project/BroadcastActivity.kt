@@ -36,6 +36,10 @@ class BroadcastActivity : AppCompatActivity() {
             val freqs = AlphanumEncoder().stringToFrequencies(freq)
             playSound(1, freqs)
         }
+
+        btn_broadcast_back.setOnClickListener{
+            finish()
+        }
     }
 
     private fun playSound(duration: Int, freqs: List<Float>) {
