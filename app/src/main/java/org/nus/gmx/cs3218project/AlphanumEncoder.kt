@@ -10,6 +10,9 @@ class AlphanumEncoder() {
     // ascii range + include first digit + next delimiter + end delimiter + start delimiteer
     // 122-48 +1+1+1 = 77
     // + left bound & right bound
+    /*  start and end freq = 10060
+        next freq = 9820
+     */
     private val baseAscii = 48
     private val numFrequencies = 78 + 2
     private val startFrequency = 700
