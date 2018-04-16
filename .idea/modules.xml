@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/CS3218Project.iml" filepath="$PROJECT_DIR$/CS3218Project.iml" />
-      <module fileurl="file://C:\Users\Giemecs\Documents\CS3218Project\CS3218_Project.iml" filepath="C:\Users\Giemecs\Documents\CS3218Project\CS3218_Project.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
