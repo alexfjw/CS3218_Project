@@ -9,10 +9,12 @@ import android.support.annotation.RequiresApi
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import kotlinx.android.synthetic.main.activity_receiver.*
 
 class ReceiverActivity : AppCompatActivity() {
 
@@ -25,6 +27,18 @@ class ReceiverActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_receiver)
+
+        buttonListen.setOnClickListener {
+            startRecordingMessage()
+            spinnerListen.visibility = View.VISIBLE
+            buttonListen.isEnabled = false
+            messageContainer.visibility = View.INVISIBLE
+        }
+        buttonCancel.setOnClickListener {
+            disposable?.dispose()
+            spinnerListen.visibility = View.INVISIBLE
+            buttonListen.isEnabled = true
+        }
     }
 
     override fun onResume() {
@@ -83,7 +97,10 @@ class ReceiverActivity : AppCompatActivity() {
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnComplete {
                         val message = alphanumEncoder.frequenciesToString(detectedFrequencies)
-                        Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
+                        buttonListen.isEnabled = true
+                        messageContainer.visibility = View.VISIBLE
+                        spinnerListen.visibility = View.INVISIBLE
+                        messageField.text = message
                         Log.i(TAG, "message: $message")
                     }
                     .subscribeOn(AndroidSchedulers.mainThread())
@@ -105,8 +122,6 @@ class ReceiverActivity : AppCompatActivity() {
             requestPermissions(
                 arrayOf(Manifest.permission.RECORD_AUDIO), RECORD_AUDIO_PERMISSIONS_REQUEST
             )
-        } else {
-            startRecordingMessage()
         }
     }
 
@@ -118,7 +133,6 @@ class ReceiverActivity : AppCompatActivity() {
             if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "record audio permission granted", Toast.LENGTH_SHORT)
                     .show()
-                startRecordingMessage()
             } else {
                 Toast.makeText(this, "record audio permission denied", Toast.LENGTH_SHORT)
                     .show()

@@ -1,10 +1,13 @@
 <resources>
     <string name="app_name">CS3218 Project</string>
-    <string name="frequency_text">Enter a frequency: </string>
-    <string name="play">Play</string>
-    <string name="message">Message: </string>
-    <string name="broadcast">Broadcast Message</string>
-    <string name="receive">Receive Message</string>
-    <string name="exit">Exit</string>
     <string name="back">Back</string>
+    <string name="broadcast">Broadcast Message</string>
+    <string name="cancel">Cancel</string>
+    <string name="exit">Exit</string>
+    <string name="frequency_text">Enter a frequency: </string>
+    <string name="listen">Listen</string>
+    <string name="message">Message: </string>
+    <string name="play">Play</string>
+    <string name="receive">Receive Message</string>
+    <string name="received">Message:</string>
 </resources>

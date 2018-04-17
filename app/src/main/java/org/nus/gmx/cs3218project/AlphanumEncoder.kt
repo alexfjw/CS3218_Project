@@ -138,39 +138,9 @@ class AlphanumEncoder() {
             }
             if (i >= guesses.size) break
         }
-
         val builder = StringBuilder()
         groups.forEach { builder.append(mostFrequentCharacter(it)) }
         return builder.toString()
-
-        //val charBuffer = ArrayDeque<AlphanumericGuess>()
-        //val nextBuffer = ArrayDeque<AlphanumericGuess>()
-
-        //for (i in 0 until guesses.size) {
-        //    val currentGuess = guesses[i]
-        //    // keep track of our position (in a next or not)
-
-        //    if (currentGuess is Character)
-        //        charBuffer.addLast(currentGuess)
-
-        //    nextBuffer.addLast(currentGuess)
-        //    if (nextBuffer.size > guessQueueSize)
-        //        nextBuffer.removeFirst()
-
-        //    if (detectedNext(nextBuffer)) {
-        //        Log.i(TAG, "entered next")
-        //        // add the char to builder, if we just entered the next
-        //        val justEnteredNext = charBuffer.size > 0
-        //        if (justEnteredNext) {
-        //            Log.i(TAG, "Char buffer: ${charBuffer.joinToString { it.frequency.toString() } }}")
-        //            Log.i(TAG, "most frequent: ${mostFrequentCharacter(charBuffer)}")
-        //            builder.append(mostFrequentCharacter(charBuffer))
-        //            charBuffer.clear()
-        //        }
-        //        nextBuffer.clear()
-                // we're in a next, do nothing
-        //    }
-        //}
     }
 
     // if 5 of the last 8 contain NEXT,
