@@ -72,10 +72,10 @@ class ReceiverActivity : AppCompatActivity() {
                         Log.i(TAG, "Heard the start")
                         started = true
                     }
-                    override fun heardEndTransmission(sampler: SoundSampler) {
+                    override fun heardEndTransmission() {
                         started = false
                         Log.i(TAG, "Heard the end")
-                        sampler.close()
+                        soundSampler?.close()
                         emitter.onComplete()
                     }
                     override fun heardFrequency(freq: Float) {
@@ -105,6 +105,7 @@ class ReceiverActivity : AppCompatActivity() {
                         Log.i(TAG, "message: $message")
                     }
                     .subscribeOn(AndroidSchedulers.mainThread())
+                    .doOnSubscribe { detectedFrequencies.clear() }
                     .subscribe { detectedFrequencies.add(it) }
 
         } catch (e: Exception) {

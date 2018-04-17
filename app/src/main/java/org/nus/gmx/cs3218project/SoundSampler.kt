@@ -10,7 +10,7 @@ interface SoundSamplerCallback {
     // no guarantees on when it is heard
     fun heardStartTransmission()
     // no guarantees on when it is heard
-    fun heardEndTransmission(sampler: SoundSampler)
+    fun heardEndTransmission()
     fun heardFrequency(freq: Float)
 }
 
@@ -118,7 +118,7 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
         if (isStart) {
             listener.heardStartTransmission()
         } else if (isEnd) {
-            listener.heardEndTransmission(this)
+            listener.heardEndTransmission()
         }
     }
 
@@ -132,7 +132,7 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
 
     fun close() {
         go = false
-        recordingThread?.interrupt()
         audioRecord?.release()
+        recordingThread?.interrupt()
     }
 }
