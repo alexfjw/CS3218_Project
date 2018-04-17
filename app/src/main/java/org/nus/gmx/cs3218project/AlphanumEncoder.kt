@@ -44,12 +44,14 @@ class AlphanumEncoder() {
     fun stringToFrequencies(str: String): List<Float> {
         val freqs = ArrayList<Float>()
         freqs.add(startTransmissionFrequency)
+        freqs.add(startTransmissionFrequency)
         // add a NEXT, to make FreqToString code easier
         freqs.add(nextCharacterFrequency)
         str.forEach { char ->
             freqs.add(alphanumericToFrequency(char))
             freqs.add(nextCharacterFrequency)
         }
+        freqs.add(endTransmissionFrequency)
         freqs.add(endTransmissionFrequency)
 
         return freqs
@@ -69,8 +71,47 @@ class AlphanumEncoder() {
         }
         Log.i(TAG, "rawClasses:  $rawClasses")
 
+        // find the last "StartTransmission" within the first 10, and drop everything before it
+        // find the first "EndTransmission" within the first 10, and drop everything before it
+        val first10 = rawGuesses.subList(0, 10)
+        var lastStart = first10.indexOfLast { it is StartTransmission }
+        if (lastStart == -1) lastStart = 0
+        val last10 = rawGuesses.subList(rawGuesses.size - 10, rawGuesses.size)
+        var lastEnd = last10.indexOfFirst { it is EndTransmission }
+        if (lastEnd == -1) lastEnd = 0
+
+        val clipped = rawGuesses.subList(lastStart, rawGuesses.size - 10 + lastEnd)
+
+        val clippedClasses = clipped.joinToString { guess ->
+            (guess as? Character)?.character?.toString() ?: guess.javaClass.simpleName
+        }
+        Log.i(TAG, "clippedClasses:  $clippedClasses")
+
         // drop all start & end freqs
-        val guesses = rawGuesses.filter { it is Character || it is Next }
+        val filtered = clipped.filter { it is Character || it is Next }
+
+        // drop all items without similar neighbors
+        val withoutNeighbors = ArrayList<AlphanumericGuess>()
+
+        for (i in 0 until filtered.size) {
+            val sameAsBefore = i == 0 || filtered[i] == filtered[i-1]
+            val sameAsAfter = i == filtered.size - 1 || filtered[i] == filtered[i+1]
+
+            if (i == 0 && sameAsAfter)  {
+                withoutNeighbors.add(filtered[i])
+            } else if (i == filtered.size-1 && sameAsBefore) {
+                withoutNeighbors.add(filtered[i])
+            } else if (sameAsAfter || sameAsAfter) {
+                withoutNeighbors.add(filtered[i])
+            }
+        }
+
+        val neighClasses = withoutNeighbors.joinToString { guess ->
+            (guess as? Character)?.character?.toString() ?: guess.javaClass.simpleName
+        }
+        Log.i(TAG, "neighClasses:  $neighClasses")
+
+        val guesses = withoutNeighbors
 
         val classes = guesses.joinToString { guess ->
             (guess as? Character)?.character?.toString() ?: guess.javaClass.simpleName
@@ -225,10 +266,35 @@ class AlphanumEncoder() {
 
 }
 
-sealed class AlphanumericGuess(val frequency: Float)
+sealed class AlphanumericGuess(val frequency: Float) {
+    override fun equals(other: Any?): Boolean {
+        if (javaClass != other?.javaClass) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return this.javaClass.simpleName.hashCode()
+    }
+}
 
 class StartTransmission(frequency: Float): AlphanumericGuess(frequency)
 class EndTransmission(frequency: Float): AlphanumericGuess(frequency)
 class Next(frequency: Float): AlphanumericGuess(frequency)
-class Character(frequency: Float, val character: Char): AlphanumericGuess(frequency)
+class Character(frequency: Float, val character: Char): AlphanumericGuess(frequency) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        if (!super.equals(other)) return false
+
+        other as Character
+
+        if (character != other.character) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return character.hashCode()
+    }
+}
 class Unknown(frequency: Float): AlphanumericGuess(frequency)

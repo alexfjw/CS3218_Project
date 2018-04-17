@@ -34,7 +34,7 @@ class BroadcastActivity : AppCompatActivity() {
         btn_play.setOnClickListener {
             val freq = et_message.text.toString()
             val freqs = AlphanumEncoder().stringToFrequencies(freq)
-            playSound(2, freqs)
+            playSound(1.5f, freqs)
         }
 
         btn_broadcast_back.setOnClickListener{
@@ -42,7 +42,7 @@ class BroadcastActivity : AppCompatActivity() {
         }
     }
 
-    private fun playSound(duration: Int, freqs: List<Float>) {
+    private fun playSound(duration: Float, freqs: List<Float>) {
         val dur = duration * 44100
         val mBufferSize = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_MONO,  AudioFormat.ENCODING_PCM_8BIT)
 //        var mAudioTrack = AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, mBufferSize, AudioTrack.MODE_STREAM)
@@ -50,7 +50,7 @@ class BroadcastActivity : AppCompatActivity() {
                 AudioFormat.Builder().setEncoding(AudioFormat.ENCODING_PCM_16BIT).setSampleRate(44100).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build(),
                 mBufferSize, AudioTrack.MODE_STREAM, AudioManager.AUDIO_SESSION_ID_GENERATE)
         val mSound = DoubleArray(44100)
-        val mBuffer = ShortArray(dur)
+        val mBuffer = ShortArray(dur.toInt())
 
         mAudioTrack.setVolume(AudioTrack.getMaxVolume())
         mAudioTrack.play()
