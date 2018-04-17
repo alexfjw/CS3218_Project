@@ -1,21 +1,18 @@
 package org.nus.gmx.cs3218project
 
 import android.Manifest
-import android.support.v7.app.AppCompatActivity
-import android.os.Bundle
-import android.widget.Toast
 import android.content.pm.PackageManager
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
+import android.os.Bundle
 import android.support.annotation.RequiresApi
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.widget.Toast
 import io.reactivex.Observable
-import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
-import org.nus.gmx.cs3218project.AlphanumEncoder
 
 class ReceiverActivity : AppCompatActivity() {
 
@@ -47,7 +44,7 @@ class ReceiverActivity : AppCompatActivity() {
         super.onPause()
     }
 
-    private val TAG = "RecieverActivity"
+    private val TAG = "ReceiverActivity"
 
     private fun createSamplingObservable(): Observable<Float> {
         var soundSampler: SoundSampler? = null
@@ -62,6 +59,7 @@ class ReceiverActivity : AppCompatActivity() {
                     }
                     override fun heardEndTransmission(sampler: SoundSampler) {
                         Log.i(TAG, "Heard the end")
+                        Log.i(TAG, "Freqs\n" + detectedFrequencies.joinToString { "$it, " })
                         emitter.onComplete()
                         sampler.close()
                     }

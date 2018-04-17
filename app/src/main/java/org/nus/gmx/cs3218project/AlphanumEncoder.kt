@@ -1,5 +1,6 @@
 package org.nus.gmx.cs3218project
 
+import android.util.Log
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.max
@@ -28,9 +29,10 @@ class AlphanumEncoder() {
     private val endTransmissionIndex = numFrequencies - 2
     private val startTransmissionIndex = numFrequencies - 3
     private val nextCharacterIndex = numFrequencies - 4
-    val startTransmissionFrequency = frequencies[endTransmissionIndex].toFloat()
+    val startTransmissionFrequency = frequencies[startTransmissionIndex].toFloat()
     val endTransmissionFrequency = frequencies[endTransmissionIndex].toFloat()
     val nextCharacterFrequency = frequencies[nextCharacterIndex].toFloat()
+    val TAG = "AlphanumEncoder"
 
     init {
         assert(frequencies.size == numFrequencies)
@@ -108,7 +110,12 @@ class AlphanumEncoder() {
 
     fun isStartTransmission(freqs: ArrayDeque<Float>, minNumber: Int): Boolean {
         val guesses = freqs.map { frequencyToAlphanumericGuess(it) }
+        val classes = guesses.joinToString { guess -> guess.javaClass.simpleName }
         val (inLimit, guess) = mostFrequentType(guesses, minNumber)
+        Log.i(TAG, "isStartTransmission")
+        //Log.i(TAG, "classes:  $classes")
+        Log.i(TAG,"type: ${guess.javaClass.canonicalName}")
+        Log.i(TAG,"detected: ${inLimit && guess is StartTransmission}")
         return inLimit && guess is StartTransmission
     }
 
