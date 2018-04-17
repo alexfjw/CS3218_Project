@@ -59,9 +59,9 @@ class ReceiverActivity : AppCompatActivity() {
                     }
                     override fun heardEndTransmission(sampler: SoundSampler) {
                         Log.i(TAG, "Heard the end")
-                        Log.i(TAG, "Freqs\n" + detectedFrequencies.joinToString { "$it, " })
-                        emitter.onComplete()
+                        Log.i(TAG, "Freqs\n" + detectedFrequencies.joinToString())
                         sampler.close()
+                        emitter.onComplete()
                     }
                     override fun heardFrequency(freq: Float) {
                         if (started) emitter.onNext(freq)
@@ -84,7 +84,7 @@ class ReceiverActivity : AppCompatActivity() {
                     .doOnComplete {
                         val message = alphanumEncoder.frequenciesToString(detectedFrequencies)
                         Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
-                        Log.i(TAG, message)
+                        Log.i(TAG, "message: $message")
                     }
                     .subscribe { detectedFrequencies.add(it) }
 

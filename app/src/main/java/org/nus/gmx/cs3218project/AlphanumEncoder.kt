@@ -53,8 +53,8 @@ class AlphanumEncoder() {
         return freqs
     }
 
-    private val guessThreshold = 5
-    private val guessQueueSize = 8
+    private val guessThreshold = 3
+    private val guessQueueSize = 5
     /**
      * Assumes that the list does not contain StartTransmission, or EndTransmission
      *
@@ -113,7 +113,7 @@ class AlphanumEncoder() {
         val classes = guesses.joinToString { guess -> guess.javaClass.simpleName }
         val (inLimit, guess) = mostFrequentType(guesses, minNumber)
         Log.i(TAG, "isStartTransmission")
-        //Log.i(TAG, "classes:  $classes")
+        Log.i(TAG, "classes:  $classes")
         Log.i(TAG,"type: ${guess.javaClass.canonicalName}")
         Log.i(TAG,"detected: ${inLimit && guess is StartTransmission}")
         return inLimit && guess is StartTransmission

@@ -28,8 +28,9 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
     private val lastHeardFrequencies = ArrayDeque<Float>()
 
     private val encoder = AlphanumEncoder()
-    private val queueSize = 5
-    private val thresholdSize = 3
+    private val queueSize = 3
+    private val thresholdSize = 2
+    private var go = true
 
     val TAG = "SoundSampler"
 
@@ -60,7 +61,7 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
 
         recordingThread = object : Thread() {
             override fun run() {
-                while (true) {
+                while (go) {
                     audioRecord!!.read(buffer, 0, bufferSize)
                     audioBufferUpdated()
                 }
@@ -130,6 +131,7 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
     }
 
     fun close() {
+        go = false
         recordingThread?.interrupt()
         audioRecord?.release()
     }
