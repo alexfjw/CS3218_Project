@@ -37,6 +37,7 @@ class ReceiverActivity : AppCompatActivity() {
         buttonCancel.setOnClickListener {
             disposable?.dispose()
             spinnerListen.visibility = View.INVISIBLE
+            messageContainer.visibility = View.INVISIBLE
             buttonListen.isEnabled = true
         }
     }
