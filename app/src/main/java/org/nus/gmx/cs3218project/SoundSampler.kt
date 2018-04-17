@@ -22,7 +22,7 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
     private var audioRecord: AudioRecord? = null
     private val WINDOWS_TO_TAKE = 5 // how many averages do we do per audio sampling
     var buffer: ShortArray? = null
-    val minBufferSize = 6144
+    val minBufferSize = 5120
     val suggestedWindowSize = 4096
     val spareBuffer = minBufferSize - suggestedWindowSize
     private val lastHeardFrequencies = ArrayDeque<Float>()
