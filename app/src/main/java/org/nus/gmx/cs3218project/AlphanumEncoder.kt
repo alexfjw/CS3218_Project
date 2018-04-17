@@ -63,7 +63,6 @@ class AlphanumEncoder() {
      * The contents are not expected to be sanitized
      */
     fun frequenciesToString(freqs: List<Float>): String {
-        val builder = StringBuilder()
         val rawGuesses = freqs.map { frequencyToAlphanumericGuess(it) }
         Log.i(TAG, "Freqs\n" + freqs.joinToString())
         val rawClasses = rawGuesses.joinToString { guess ->
@@ -94,12 +93,12 @@ class AlphanumEncoder() {
         val withoutNeighbors = ArrayList<AlphanumericGuess>()
 
         for (i in 0 until filtered.size) {
-            val sameAsBefore = i == 0 || filtered[i] == filtered[i-1]
-            val sameAsAfter = i == filtered.size - 1 || filtered[i] == filtered[i+1]
+            val sameAsBefore = i == 0 || filtered[i] == filtered[i - 1]
+            val sameAsAfter = i == filtered.size - 1 || filtered[i] == filtered[i + 1]
 
-            if (i == 0 && sameAsAfter)  {
+            if (i == 0 && sameAsAfter) {
                 withoutNeighbors.add(filtered[i])
-            } else if (i == filtered.size-1 && sameAsBefore) {
+            } else if (i == filtered.size - 1 && sameAsBefore) {
                 withoutNeighbors.add(filtered[i])
             } else if (sameAsAfter || sameAsAfter) {
                 withoutNeighbors.add(filtered[i])
@@ -118,36 +117,61 @@ class AlphanumEncoder() {
         }
         Log.i(TAG, "classes:  $classes")
 
-        val charBuffer = ArrayDeque<AlphanumericGuess>()
-        val nextBuffer = ArrayDeque<AlphanumericGuess>()
-
-        for (i in 0 until guesses.size) {
-            val currentGuess = guesses[i]
-            // keep track of our position (in a next or not)
-
-            if (currentGuess is Character)
-                charBuffer.addLast(currentGuess)
-
-            nextBuffer.addLast(currentGuess)
-            if (nextBuffer.size > guessQueueSize)
-                nextBuffer.removeFirst()
-
-            if (detectedNext(nextBuffer)) {
-                Log.i(TAG, "entered next")
-                // add the char to builder, if we just entered the next
-                val justEnteredNext = charBuffer.size > 0
-                if (justEnteredNext) {
-                    Log.i(TAG, "Char buffer: ${charBuffer.joinToString { it.frequency.toString() } }}")
-                    Log.i(TAG, "most frequent: ${mostFrequentCharacter(charBuffer)}")
-                    builder.append(mostFrequentCharacter(charBuffer))
-                    charBuffer.clear()
-                }
-                nextBuffer.clear()
-                // we're in a next, do nothing
+        // split by next
+        val groups = ArrayList<ArrayList<Character>>()
+        var i = 0
+        while (true) {
+            var currentGuess = guesses[i]
+            while (currentGuess is Next) {
+                // skip all the way till end of next
+                i++
+                if (i >= guesses.size) break
+                currentGuess = guesses[i]
             }
+            if (i >= guesses.size) break
+            // not a next anymore!
+            groups.add(ArrayList())
+            while (currentGuess is Character) {
+                groups.last().add(currentGuess)
+                i++
+                if (i >= guesses.size) break
+                currentGuess = guesses[i]
+            }
+            if (i >= guesses.size) break
         }
-        
+
+        val builder = StringBuilder()
+        groups.forEach { builder.append(mostFrequentCharacter(it)) }
         return builder.toString()
+
+        //val charBuffer = ArrayDeque<AlphanumericGuess>()
+        //val nextBuffer = ArrayDeque<AlphanumericGuess>()
+
+        //for (i in 0 until guesses.size) {
+        //    val currentGuess = guesses[i]
+        //    // keep track of our position (in a next or not)
+
+        //    if (currentGuess is Character)
+        //        charBuffer.addLast(currentGuess)
+
+        //    nextBuffer.addLast(currentGuess)
+        //    if (nextBuffer.size > guessQueueSize)
+        //        nextBuffer.removeFirst()
+
+        //    if (detectedNext(nextBuffer)) {
+        //        Log.i(TAG, "entered next")
+        //        // add the char to builder, if we just entered the next
+        //        val justEnteredNext = charBuffer.size > 0
+        //        if (justEnteredNext) {
+        //            Log.i(TAG, "Char buffer: ${charBuffer.joinToString { it.frequency.toString() } }}")
+        //            Log.i(TAG, "most frequent: ${mostFrequentCharacter(charBuffer)}")
+        //            builder.append(mostFrequentCharacter(charBuffer))
+        //            charBuffer.clear()
+        //        }
+        //        nextBuffer.clear()
+                // we're in a next, do nothing
+        //    }
+        //}
     }
 
     // if 5 of the last 8 contain NEXT,
@@ -205,7 +229,7 @@ class AlphanumEncoder() {
     }
 
     // assume that frequencies are equal!
-    private fun mostFrequentCharacter(freqs: ArrayDeque<AlphanumericGuess>): Char? {
+    private fun mostFrequentCharacter(freqs: Collection<AlphanumericGuess>): Char? {
         // might have some unknowns, and other things here
         val sanitized = ArrayList<Char>()
         freqs.forEach { if (it is Character) sanitized.add(it.character) }
