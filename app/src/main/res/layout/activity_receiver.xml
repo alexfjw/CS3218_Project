@@ -16,6 +16,7 @@
         android:gravity="center"/>
 
     <ProgressBar
+        android:layout_margin="10dp"
         android:visibility="invisible"
         android:id="@+id/spinnerListen"
         android:layout_width="wrap_content"
