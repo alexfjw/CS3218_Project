@@ -44,6 +44,8 @@ class AlphanumEncoder() {
     fun stringToFrequencies(str: String): List<Float> {
         val freqs = ArrayList<Float>()
         freqs.add(startTransmissionFrequency)
+        // add a NEXT, to make FreqToString code easier
+        freqs.add(nextCharacterFrequency)
         str.forEach { char ->
             freqs.add(alphanumericToFrequency(char))
             freqs.add(nextCharacterFrequency)
@@ -53,49 +55,55 @@ class AlphanumEncoder() {
         return freqs
     }
 
-    private val guessThreshold = 3
-    private val guessQueueSize = 5
+    private val guessThreshold = 2
+    private val guessQueueSize = 3
     /**
-     * Assumes that the list does not contain StartTransmission, or EndTransmission
-     *
      * The contents are not expected to be sanitized
      */
     fun frequenciesToString(freqs: List<Float>): String {
         val builder = StringBuilder()
-        val guesses = freqs.map { frequencyToAlphanumericGuess(it) }
+        val rawGuesses = freqs.map { frequencyToAlphanumericGuess(it) }
+        Log.i(TAG, "Freqs\n" + freqs.joinToString())
+        val rawClasses = rawGuesses.joinToString { guess ->
+            (guess as? Character)?.character?.toString() ?: guess.javaClass.simpleName
+        }
+        Log.i(TAG, "rawClasses:  $rawClasses")
+
+        // drop all start & end freqs
+        val guesses = rawGuesses.filter { it is Character || it is Next }
+
+        val classes = guesses.joinToString { guess ->
+            (guess as? Character)?.character?.toString() ?: guess.javaClass.simpleName
+        }
+        Log.i(TAG, "classes:  $classes")
 
         val charBuffer = ArrayDeque<AlphanumericGuess>()
         val nextBuffer = ArrayDeque<AlphanumericGuess>()
 
         for (i in 0 until guesses.size) {
             val currentGuess = guesses[i]
-
             // keep track of our position (in a next or not)
+
+            if (currentGuess is Character)
+                charBuffer.addLast(currentGuess)
+
+            nextBuffer.addLast(currentGuess)
             if (nextBuffer.size > guessQueueSize)
                 nextBuffer.removeFirst()
-            nextBuffer.add(currentGuess)
 
             if (detectedNext(nextBuffer)) {
+                Log.i(TAG, "entered next")
                 // add the char to builder, if we just entered the next
                 val justEnteredNext = charBuffer.size > 0
                 if (justEnteredNext) {
+                    Log.i(TAG, "Char buffer: ${charBuffer.joinToString { it.frequency.toString() } }}")
+                    Log.i(TAG, "most frequent: ${mostFrequentCharacter(charBuffer)}")
                     builder.append(mostFrequentCharacter(charBuffer))
                     charBuffer.clear()
                 }
+                nextBuffer.clear()
                 // we're in a next, do nothing
-
-            } else {
-                val justEnteredChar = charBuffer.size == 0
-                if (justEnteredChar) {
-                    // dump in all the items detected so far to get the whole signal
-                    charBuffer.addAll(nextBuffer)
-                }
-
-                // we're out of a next
-                // chalk up the guesses
-                charBuffer.add(currentGuess)
             }
-
         }
         
         return builder.toString()
@@ -110,12 +118,12 @@ class AlphanumEncoder() {
 
     fun isStartTransmission(freqs: ArrayDeque<Float>, minNumber: Int): Boolean {
         val guesses = freqs.map { frequencyToAlphanumericGuess(it) }
-        val classes = guesses.joinToString { guess -> guess.javaClass.simpleName }
         val (inLimit, guess) = mostFrequentType(guesses, minNumber)
-        Log.i(TAG, "isStartTransmission")
-        Log.i(TAG, "classes:  $classes")
-        Log.i(TAG,"type: ${guess.javaClass.canonicalName}")
-        Log.i(TAG,"detected: ${inLimit && guess is StartTransmission}")
+        //val classes = guesses.joinToString { guess -> guess.javaClass.simpleName }
+        //Log.i(TAG, "classes:  $classes")
+        //Log.i(TAG, "isStartTransmission")
+        //Log.i(TAG,"type: ${guess.javaClass.canonicalName}")
+        //Log.i(TAG,"detected: ${inLimit && guess is StartTransmission}")
         return inLimit && guess is StartTransmission
     }
 
@@ -161,6 +169,7 @@ class AlphanumEncoder() {
         val sanitized = ArrayList<Char>()
         freqs.forEach { if (it is Character) sanitized.add(it.character) }
 
+        Log.i(TAG, "most freq char guess: ${sanitized.joinToString()}")
         // group by character
         val grouped = sanitized
                 .groupingBy { it }
@@ -190,7 +199,6 @@ class AlphanumEncoder() {
             endTransmissionIndex -> EndTransmission(freq)
             nextCharacterIndex -> Next(freq)
             else -> {
-                // -1, for left bound
                 val charAscii = (baseAscii + nearestIdx - 1).toChar()
                 Character(freq, charAscii)
             }

@@ -58,8 +58,8 @@ class ReceiverActivity : AppCompatActivity() {
                         started = true
                     }
                     override fun heardEndTransmission(sampler: SoundSampler) {
+                        started = false
                         Log.i(TAG, "Heard the end")
-                        Log.i(TAG, "Freqs\n" + detectedFrequencies.joinToString())
                         sampler.close()
                         emitter.onComplete()
                     }
@@ -86,6 +86,7 @@ class ReceiverActivity : AppCompatActivity() {
                         Toast.makeText(applicationContext, message, Toast.LENGTH_LONG).show()
                         Log.i(TAG, "message: $message")
                     }
+                    .subscribeOn(AndroidSchedulers.mainThread())
                     .subscribe { detectedFrequencies.add(it) }
 
         } catch (e: Exception) {
