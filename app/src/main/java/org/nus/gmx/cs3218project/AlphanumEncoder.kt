@@ -99,7 +99,7 @@ class AlphanumEncoder() {
                 withoutNeighbors.add(filtered[i])
             } else if (i == filtered.size - 1 && sameAsBefore) {
                 withoutNeighbors.add(filtered[i])
-            } else if (sameAsAfter || sameAsAfter) {
+            } else if (sameAsAfter || sameAsBefore) {
                 withoutNeighbors.add(filtered[i])
             }
         }

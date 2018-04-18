@@ -20,11 +20,9 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
     private val nChannels = 16
     private var recordingThread: Thread? = null
     private var audioRecord: AudioRecord? = null
-    private val WINDOWS_TO_TAKE = 5 // how many averages do we do per audio sampling
-    var buffer: ShortArray? = null
+    private val WINDOWS_TO_TAKE = 3 // how many averages do we do per audio sampling
     val minBufferSize = 5120
-    val suggestedWindowSize = 4096
-    val spareBuffer = minBufferSize - suggestedWindowSize
+    val suggestedWindowSize = 2048
     private val lastHeardFrequencies = ArrayDeque<Float>()
 
     private val encoder = AlphanumEncoder()
@@ -56,25 +54,27 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
             throw Exception()
         }
 
-        buffer = ShortArray(bufferSize)
+        val buffer = ShortArray(bufferSize)
         audioRecord!!.startRecording()
 
         recordingThread = object : Thread() {
             override fun run() {
                 while (go) {
                     audioRecord!!.read(buffer, 0, bufferSize)
-                    audioBufferUpdated()
+                    audioBufferUpdated(buffer.sliceArray(0 until (buffer.size/2)))
+                    audioBufferUpdated(buffer.sliceArray((buffer.size/2) until buffer.size))
                 }
             }
         }
         recordingThread!!.start()
     }
 
-    private fun audioBufferUpdated() {
-        val frequencyThreshold = 600.0
+    private fun audioBufferUpdated(freqBuffer: ShortArray) {
+        val frequencyThreshold = 650.0 // we start at 700
 
         val windowSize = suggestedWindowSize
         val hannWindow = buildHannWindow(windowSize)
+        val spareBuffer = freqBuffer.size - suggestedWindowSize
         val intervalSize = spareBuffer / (WINDOWS_TO_TAKE + 1)
 
         // x2, to insert conjugate components
@@ -84,10 +84,10 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
 
         val highestFrequencies = ArrayList<Float>()
         for (i in 0 until WINDOWS_TO_TAKE) {
-            val fftBuffer = FloatArray((fftSize).toInt()) // try padding with zeros for higher resolution
+            val fftBuffer = FloatArray((fftSize))
             for (j in 0 until windowSize) {
                 val bufferOffset = intervalSize * i
-                fftBuffer[2*j] = buffer!![j+bufferOffset].toFloat() * hannWindow[j]
+                fftBuffer[2*j] = freqBuffer[j+bufferOffset].toFloat() * hannWindow[j]
                 fftBuffer[2*j+1] = 0.0f
             }
             fftObject.complexForward(fftBuffer)
@@ -101,7 +101,6 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
                 highestFrequencies.add(firstFrequency)
         }
         val average = highestFrequencies.average().toFloat()
-        //Log.i(TAG, "freqs heard: ${highestFrequencies.joinToString(", ")}")
         Log.i(TAG, "avg: ${average}")
         listener.heardFrequency(average)
         manageLastHeardFrequencies(average)
