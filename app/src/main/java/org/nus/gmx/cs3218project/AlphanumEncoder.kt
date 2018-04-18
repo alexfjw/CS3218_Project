@@ -8,7 +8,7 @@ import kotlin.collections.ArrayList
 class AlphanumEncoder() {
 
     // 74 + 2 digits to fill
-    // ascii range + include first digit + next delimiter + end delimiter + start delimiteer
+    // ascii range + include first digit + next delimiter + end delimiter + start delimiter
     // 122-48 +1+1+1 = 77
     // + left bound & right bound
     /*  start and end freq = 10060
@@ -18,7 +18,7 @@ class AlphanumEncoder() {
     private val numFrequencies = 78 + 2
     private val startFrequency = 700
     private val endFrequency = 14_000  // try to end at ~14,000. speakers can't play higher than that
-    private val spacing = 120
+    private val spacing = 115 // used to be 120, try reducing freq a bit, endTransmission frequency is hard to detect
     private val frequencies = (startFrequency..endFrequency step spacing)
             .toList()
             .subList(0, numFrequencies)
