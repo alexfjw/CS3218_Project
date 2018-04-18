@@ -50,6 +50,8 @@ class AlphanumEncoder() {
             freqs.add(alphanumericToFrequency(char))
             freqs.add(nextCharacterFrequency)
         }
+        // do this 3x, we miss it sometimes.. very risky
+        freqs.add(endTransmissionFrequency)
         freqs.add(endTransmissionFrequency)
         freqs.add(endTransmissionFrequency)
 
