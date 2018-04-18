@@ -14,6 +14,9 @@ interface SoundSamplerCallback {
     fun heardFrequency(freq: Float)
 }
 
+/**
+ *
+ */
 class SoundSampler(private val listener: SoundSamplerCallback) {
     val FS = 40000 // sampling frequency
     private val audioEncoding = 2
@@ -21,8 +24,8 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
     private var recordingThread: Thread? = null
     private var audioRecord: AudioRecord? = null
     private val WINDOWS_TO_TAKE = 5 // how many averages do we do per audio sampling
-    val minBufferSize = 5120
-    val suggestedWindowSize = 2048
+    private val minBufferSize = 5120
+    private val suggestedWindowSize = 2048
     private val lastHeardFrequencies = ArrayDeque<Float>()
 
     private val encoder = AlphanumEncoder()
@@ -30,7 +33,7 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
     private val thresholdSize = 2
     private var go = true
 
-    val TAG = "SoundSampler"
+    private val TAG = "SoundSampler"
 
     @Throws(Exception::class)
     fun init() {
