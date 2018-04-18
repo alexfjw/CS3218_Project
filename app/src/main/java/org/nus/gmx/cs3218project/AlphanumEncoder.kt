@@ -94,13 +94,13 @@ class AlphanumEncoder() {
         val withoutNeighbors = ArrayList<AlphanumericGuess>()
 
         for (i in 0 until filtered.size) {
-            val sameAsBefore = i == 0 || filtered[i] == filtered[i - 1]
-            val sameAsAfter = i == filtered.size - 1 || filtered[i] == filtered[i + 1]
+            val sameAsBefore by lazy {filtered[i] == filtered[i - 1]}
+            val sameAsAfter by lazy {filtered[i] == filtered[i + 1]}
 
-            if (i == 0 && sameAsAfter) {
-                withoutNeighbors.add(filtered[i])
-            } else if (i == filtered.size - 1 && sameAsBefore) {
-                withoutNeighbors.add(filtered[i])
+            if (i == 0) {
+                if (sameAsAfter) withoutNeighbors.add(filtered[i])
+            } else if (i == filtered.size - 1) {
+                if (sameAsBefore) withoutNeighbors.add(filtered[i])
             } else if (sameAsAfter || sameAsBefore) {
                 withoutNeighbors.add(filtered[i])
             }
