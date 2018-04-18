@@ -34,7 +34,7 @@ class BroadcastActivity : AppCompatActivity() {
         btn_play.setOnClickListener {
             val freq = et_message.text.toString()
             val freqs = AlphanumEncoder().stringToFrequencies(freq)
-            playSound(1.5f, freqs)
+            playSound(1f, freqs)
         }
 
         btn_broadcast_back.setOnClickListener{
