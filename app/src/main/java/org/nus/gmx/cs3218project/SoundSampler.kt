@@ -29,8 +29,8 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
     private val lastHeardFrequencies = ArrayDeque<Float>()
 
     private val encoder = AlphanumEncoder()
-    private val queueSize = 4
-    private val thresholdSize = 2
+    private val queueSize = 5
+    private val thresholdSize = 3
     private var go = true
 
     private val TAG = "SoundSampler"
