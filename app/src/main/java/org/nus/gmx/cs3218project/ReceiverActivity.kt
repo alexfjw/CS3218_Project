@@ -22,7 +22,6 @@ class ReceiverActivity : AppCompatActivity() {
     private var disposable: Disposable? = null
     private val detectedFrequencies: ArrayList<Float> = ArrayList()
     private val alphanumEncoder: AlphanumEncoder = AlphanumEncoder()
-    private var shouldExit = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,13 +39,14 @@ class ReceiverActivity : AppCompatActivity() {
             messageContainer.visibility = View.INVISIBLE
             buttonListen.isEnabled = true
         }
+        buttonBack.setOnClickListener {
+            disposable?.dispose()
+            onBackPressed()
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        if (shouldExit) {
-            onBackPressed()
-        }
 
         if (VERSION.SDK_INT >= VERSION_CODES.M) {
             getPermissionToRecordAudioOrStartRecording()
@@ -54,8 +54,7 @@ class ReceiverActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
-        disposable?.dispose()
-        shouldExit = true
+        buttonCancel.performClick()
         super.onPause()
     }
 

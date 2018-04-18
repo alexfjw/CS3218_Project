@@ -7,32 +7,34 @@
               android:gravity="center_horizontal">
 
     <Button
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_width="200dp"
         android:textSize="12sp"
         android:layout_marginTop="100dp"
         android:text="@string/listen"
         android:id="@+id/buttonListen"
         android:gravity="center"/>
 
+    <Button
+        android:id="@+id/buttonCancel"
+        android:layout_width="200dp"
+        android:layout_marginTop="10dp"
+        android:layout_height="wrap_content"
+        android:text="@string/cancel"
+        android:textAllCaps="false" />
+
     <ProgressBar
-        android:layout_margin="10dp"
+        android:layout_margin="20dp"
         android:visibility="invisible"
         android:id="@+id/spinnerListen"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-    <Button
-        android:id="@+id/buttonCancel"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:text="@string/cancel"
-        android:textAllCaps="false" />
-
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="25dp"
+        android:layout_marginBottom="25dp"
         android:id="@+id/messageContainer"
         android:orientation="vertical"
         android:visibility="invisible"
@@ -41,18 +43,27 @@
         <TextView
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:text="@string/received"
             android:gravity="center"
-            android:textAllCaps="false" />
+            android:text="@string/received"
+            android:textAllCaps="false"
+            android:textSize="18sp"/>
+
         <TextView
+            android:id="@+id/messageField"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:textAllCaps="false"
             android:gravity="center"
-            android:id="@+id/messageField"/>
-
+            android:textAllCaps="false"
+            android:textSize="18sp"/>
 
     </LinearLayout>
+
+    <Button
+        android:id="@+id/buttonBack"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="@string/back"
+        android:textAllCaps="false" />
 
 
 </LinearLayout>
