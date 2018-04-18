@@ -16,12 +16,16 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_receiver.*
 
+/**
+ * Uses RXJava for easier thread management
+ */
 class ReceiverActivity : AppCompatActivity() {
 
     private val RECORD_AUDIO_PERMISSIONS_REQUEST = 1
     private var disposable: Disposable? = null
     private val detectedFrequencies: ArrayList<Float> = ArrayList()
     private val alphanumEncoder: AlphanumEncoder = AlphanumEncoder()
+    private val TAG = "ReceiverActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,8 +62,10 @@ class ReceiverActivity : AppCompatActivity() {
         super.onPause()
     }
 
-    private val TAG = "ReceiverActivity"
-
+    /**
+     * Sampling observable watches for 3 events:
+     * heardStartTransmission(), headEndTransmission() & heardFrequency()
+     */
     private fun createSamplingObservable(): Observable<Float> {
         var soundSampler: SoundSampler? = null
 
@@ -103,6 +109,7 @@ class ReceiverActivity : AppCompatActivity() {
                         messageField.text = message
                         Log.i(TAG, "message: $message")
                     }
+                    .doOnError { disposable?.dispose() }
                     .subscribeOn(AndroidSchedulers.mainThread())
                     .doOnSubscribe { detectedFrequencies.clear() }
                     .subscribe { detectedFrequencies.add(it) }
