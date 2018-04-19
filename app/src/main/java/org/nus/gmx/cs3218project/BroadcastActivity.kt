@@ -17,10 +17,9 @@ import kotlinx.android.synthetic.main.activity_broadcast.*
 
 class BroadcastActivity : AppCompatActivity() {
 
-    private inner class Player : AsyncTask<Void, Void, Void>() {
-        override fun doInBackground(vararg p0: Void?): Void? {
-            val freq = et_message.text.toString()
-            val freqs = AlphanumEncoder().stringToFrequencies(freq)
+    private inner class Player : AsyncTask<String, Void, Void>() {
+        override fun doInBackground(vararg freq: String): Void? {
+            val freqs = AlphanumEncoder().stringToFrequencies(freq[0])
             playSound(1f, freqs)
             return null
         }
@@ -50,12 +49,21 @@ class BroadcastActivity : AppCompatActivity() {
         init()
     }
 
+    private fun isInputGood(msg: String): Boolean {
+        return msg.matches("[A-Za-z0-9]+".toRegex())
+    }
+
     private fun init() {
         btn_play.setOnClickListener {
             if (!isPlaying) {
-                player = Player()
-                player.execute()
-                isPlaying = true
+                val freq = et_message.text.toString()
+                if (isInputGood(freq)) {
+                    player = Player()
+                    player.execute(freq)
+                    isPlaying = true
+                } else {
+                    Toast.makeText(this, "Message contains non-alphanumeric characters!", Toast.LENGTH_SHORT).show()
+                }
             } else {
                 Toast.makeText(this, "Message is already being played!", Toast.LENGTH_SHORT).show()
             }
@@ -84,7 +92,6 @@ class BroadcastActivity : AppCompatActivity() {
     private fun playSound(duration: Float, freqs: List<Float>) {
         val dur = duration * 44100
         val mBufferSize = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_MONO,  AudioFormat.ENCODING_PCM_8BIT)
-//        var mAudioTrack = AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, mBufferSize, AudioTrack.MODE_STREAM)
         mAudioTrack = AudioTrack(AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build(),
                 AudioFormat.Builder().setEncoding(AudioFormat.ENCODING_PCM_16BIT).setSampleRate(44100).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build(),
                 mBufferSize, AudioTrack.MODE_STREAM, AudioManager.AUDIO_SESSION_ID_GENERATE)
