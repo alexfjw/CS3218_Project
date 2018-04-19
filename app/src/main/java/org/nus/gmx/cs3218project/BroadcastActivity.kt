@@ -20,7 +20,7 @@ class BroadcastActivity : AppCompatActivity() {
     private inner class Player : AsyncTask<String, Void, Void>() {
         override fun doInBackground(vararg freq: String): Void? {
             val freqs = AlphanumEncoder().stringToFrequencies(freq[0])
-            playSound(1f, freqs)
+            playSound(0.5f, freqs)
             return null
         }
 
@@ -95,7 +95,7 @@ class BroadcastActivity : AppCompatActivity() {
         mAudioTrack = AudioTrack(AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build(),
                 AudioFormat.Builder().setEncoding(AudioFormat.ENCODING_PCM_16BIT).setSampleRate(44100).setChannelMask(AudioFormat.CHANNEL_OUT_MONO).build(),
                 mBufferSize, AudioTrack.MODE_STREAM, AudioManager.AUDIO_SESSION_ID_GENERATE)
-        val mSound = DoubleArray(44100)
+        val mSound = DoubleArray(dur.toInt())
         val mBuffer = ShortArray(dur.toInt())
 
         mAudioTrack.setVolume(AudioTrack.getMaxVolume())
