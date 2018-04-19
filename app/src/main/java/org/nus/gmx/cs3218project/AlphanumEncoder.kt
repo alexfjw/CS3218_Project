@@ -46,7 +46,7 @@ class AlphanumEncoder() {
     }
 
     /**
-     * Assumes no invalid characters
+     * Assumes no invalid characters, filtered by front end validation
      * Encodes input characters in the following format
      * 1) START_FREQ * 2
      * 2) For each character:

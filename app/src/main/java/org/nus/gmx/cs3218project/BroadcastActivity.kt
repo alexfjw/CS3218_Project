@@ -17,6 +17,10 @@ import kotlinx.android.synthetic.main.activity_broadcast.*
 
 class BroadcastActivity : AppCompatActivity() {
 
+    /**
+     * Use this class to play sound
+     * It will run in the background thread
+     */
     private inner class Player : AsyncTask<String, Void, Void>() {
         override fun doInBackground(vararg freq: String): Void? {
             val freqs = AlphanumEncoder().stringToFrequencies(freq[0])
@@ -89,6 +93,13 @@ class BroadcastActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * The function that plays sound
+     * Takes in two parameters:
+     * 1. duration of each frequency
+     * 2. list of frequencies that represent the alphanumeric character
+     * and write to AudioTrack to be played
+     */
     private fun playSound(duration: Float, freqs: List<Float>) {
         val dur = duration * 44100
         val mBufferSize = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_OUT_MONO,  AudioFormat.ENCODING_PCM_8BIT)

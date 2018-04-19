@@ -13,6 +13,11 @@ class MainActivity : AppCompatActivity() {
         init()
     }
 
+    /**
+     * Choose one activity from
+     * Broadcast, Receive activity
+     * or exit
+     */
     private fun init() {
         btn_broadcast.setOnClickListener {
             val intent = Intent(this, BroadcastActivity::class.java)
