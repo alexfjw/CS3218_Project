@@ -107,7 +107,11 @@ class BroadcastActivity : AppCompatActivity() {
                 mBuffer[i] = (mSound[i] * Short.MAX_VALUE).toShort()
             }
             Log.e("Current freq: ", freqs[j].toString())
-            mAudioTrack.write(mBuffer, 0, mSound.size)
+            try {
+                mAudioTrack.write(mBuffer, 0, mSound.size)
+            } catch (e: IllegalStateException) {
+                Log.e("AudioTrack", "Stopped writing to audio track")
+            }
         }
         stopAudioTrack()
     }
