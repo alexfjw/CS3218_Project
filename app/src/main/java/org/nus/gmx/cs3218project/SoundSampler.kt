@@ -17,10 +17,10 @@ interface SoundSamplerCallback {
 /**
  * Samples sound with the following algorithm:
  * Take a audioRecord buffer size of 5120
- * For each fully filled buffer that arrives:
+ * when each fully filled buffer arrives:
  *      Split the buffer into 2 halves (half's size = 2560)
  *      For each half:
- *          Take a few windows of 2048 (5 at time of writing, spacing of ~100)
+ *          Take a few windows of 2048 (5 at time of writing, windows with step size of ~100)
  *          For each window, apply the Hann filter, perform FFT & get the highest frequency.
  *          Ignore all frequencies < 650 (we only play frequencies > 700)
  *          Average the frequencies & consider the average a "detected frequency"
@@ -75,6 +75,7 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
             override fun run() {
                 while (go) {
                     audioRecord!!.read(buffer, 0, bufferSize)
+                    // split buffer into 2
                     audioBufferUpdated(buffer.sliceArray(0 until (buffer.size/2)))
                     audioBufferUpdated(buffer.sliceArray((buffer.size/2) until buffer.size))
                 }
