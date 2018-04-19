@@ -31,6 +31,13 @@
     <Button
         android:layout_width="200dp"
         android:layout_height="wrap_content"
+        android:id="@+id/btn_broadcast_cancel"
+        android:text="@string/cancel"
+        android:textAllCaps="false"/>
+
+    <Button
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
         android:textAllCaps="false"
         android:text="@string/back"
