@@ -16,16 +16,16 @@ interface SoundSamplerCallback {
 
 /**
  * SoundSampler listens for START_FREQ, END_FREQ and normal frequencies
- * SoundSamplerCallback is contacted when these sounds are detected
+ * SoundSamplerCallback is contacted when these frequencies are detected
  *
  * Samples sound with the following algorithm:
  * Take a audioRecord buffer size of 5120
  * when each fully filled buffer arrives:
- *      Split the buffer into 2 halves (half's size = 2560)
+ *      Split the buffer into 2 halves (half's size is 2560)
  *      For each half:
  *          Take a few windows of 2048 (5 at time of writing, windows with step size of ~100)
  *          For each window, apply the Hann filter, perform FFT & get the highest frequency.
- *          Ignore all frequencies < 650 (we only play frequencies > 700)
+ *          Ignore all frequencies < 650 (we only play frequencies > 700Hz)
  *          Average the frequencies & consider the average a "detected frequency"
  *
  *          Pass the detected frequency to the listener
@@ -36,7 +36,7 @@ interface SoundSamplerCallback {
  * Contact listener if 3 are type END_FREQ
  */
 class SoundSampler(private val listener: SoundSamplerCallback) {
-    // sampling frequency
+    // sampling frequency, we only play up till 15,000Hz
     val FS = 40000
     private val audioEncoding = 2
     private val nChannels = 16
@@ -60,6 +60,9 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
 
     @Throws(Exception::class)
     fun init() {
+        // ensures listener will not receive START_FREQ & END_FREQ events at the same time
+        assert(queueThresholdSize.toFloat() > queueSize.toFloat())
+
         val suggestedBufferSize = AudioRecord.getMinBufferSize(FS, nChannels, audioEncoding)
         Log.d("SoundSampler", "Suggested buffer size: $suggestedBufferSize")
         val bufferSize = if (suggestedBufferSize < minBufferSize) minBufferSize else suggestedBufferSize
@@ -135,6 +138,9 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
         manageLastHeardFrequencies(average)
     }
 
+    /**
+     * Contacts the listener if START or END is detected
+     */
     private fun manageLastHeardFrequencies(newFrequency: Float) {
         lastHeardFrequencies.addLast(newFrequency)
         if (lastHeardFrequencies.size > queueSize) {
