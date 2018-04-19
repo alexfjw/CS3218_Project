@@ -15,7 +15,8 @@ interface SoundSamplerCallback {
 }
 
 /**
- *
+ * Samples sound with the following algorithm:
+ * 
  */
 class SoundSampler(private val listener: SoundSamplerCallback) {
     val FS = 40000 // sampling frequency
