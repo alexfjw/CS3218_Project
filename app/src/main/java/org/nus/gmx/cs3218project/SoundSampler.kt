@@ -15,6 +15,9 @@ interface SoundSamplerCallback {
 }
 
 /**
+ * SoundSampler listens for START_FREQ, END_FREQ and normal frequencies
+ * SoundSamplerCallback is contacted when these sounds are detected
+ *
  * Samples sound with the following algorithm:
  * Take a audioRecord buffer size of 5120
  * when each fully filled buffer arrives:
