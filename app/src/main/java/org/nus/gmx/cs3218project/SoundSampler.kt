@@ -16,7 +16,16 @@ interface SoundSamplerCallback {
 
 /**
  * Samples sound with the following algorithm:
- * 
+ * Take a audioRecord buffer size of 5120
+ * For each fully filled buffer that arrives:
+ *      Split the buffer into 2 halves (half's size = 2560)
+ *      For each half:
+ *          Take a few windows of 2048 (5 at time of writing, spacing of ~100)
+ *          For each window, apply the Hann filter, perform FFT & get the highest frequency.
+ *          Ignore all frequencies < 650 (we only play frequencies > 700)
+ *          Average the frequencies & consider the average a "detected frequency"
+ *
+ *          Pass the detected frequency to the listener
  */
 class SoundSampler(private val listener: SoundSamplerCallback) {
     val FS = 40000 // sampling frequency
@@ -33,6 +42,7 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
     private val queueSize = 5
     private val thresholdSize = 3
     private var go = true
+    private val frequencyThreshold = 650.0 // we start at 700
 
     private val TAG = "SoundSampler"
 
@@ -74,7 +84,6 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
     }
 
     private fun audioBufferUpdated(freqBuffer: ShortArray) {
-        val frequencyThreshold = 650.0 // we start at 700
 
         val windowSize = suggestedWindowSize
         val hannWindow = buildHannWindow(windowSize)
