@@ -51,6 +51,8 @@
         <TextView
             android:id="@+id/messageField"
             android:layout_width="wrap_content"
+            android:hyphenationFrequency="none"
+            android:breakStrategy="simple"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textAllCaps="false"
