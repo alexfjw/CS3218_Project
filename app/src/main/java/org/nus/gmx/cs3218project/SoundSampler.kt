@@ -95,9 +95,12 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
         val fftObject = FloatFFT_1D(fftSize/2)
         val interval: Float = FS/(fftSize.toFloat())
 
+        // take a few moving windows
         val highestFrequencies = ArrayList<Float>()
         for (i in 0 until WINDOWS_TO_TAKE) {
             val fftBuffer = FloatArray((fftSize))
+
+            // multiply with hann window while filling buffer
             for (j in 0 until windowSize) {
                 val bufferOffset = intervalSize * i
                 fftBuffer[2*j] = freqBuffer[j+bufferOffset].toFloat() * hannWindow[j]
