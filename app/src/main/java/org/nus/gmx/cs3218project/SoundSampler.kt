@@ -29,23 +29,32 @@ interface SoundSamplerCallback {
  *          Average the frequencies & consider the average a "detected frequency"
  *
  *          Pass the detected frequency to the listener
+ *
+ * Detecting START_FREQ & END_FREQ
+ * Store the last 5 frequencies detected into a queue
+ * Contact listener if 3 are type START_FREQ,
+ * Contact listener if 3 are type END_FREQ
  */
 class SoundSampler(private val listener: SoundSamplerCallback) {
-    val FS = 40000 // sampling frequency
+    // sampling frequency
+    val FS = 40000
     private val audioEncoding = 2
     private val nChannels = 16
     private var recordingThread: Thread? = null
     private var audioRecord: AudioRecord? = null
+
+    private var keepRunningThread = true
+
+    private val encoder = AlphanumEncoder()
+
     private val WINDOWS_TO_TAKE = 5 // how many averages do we do per audio sampling
     private val minBufferSize = 5120
     private val suggestedWindowSize = 2048
-    private val lastHeardFrequencies = ArrayDeque<Float>()
+    private val frequencyThreshold = 650.0 // we only produce > 700Hz
 
-    private val encoder = AlphanumEncoder()
+    private val lastHeardFrequencies = ArrayDeque<Float>()
     private val queueSize = 5
-    private val thresholdSize = 3
-    private var go = true
-    private val frequencyThreshold = 650.0 // we start at 700
+    private val queueThresholdSize = 3
 
     private val TAG = "SoundSampler"
 
@@ -76,7 +85,7 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
 
         recordingThread = object : Thread() {
             override fun run() {
-                while (go) {
+                while (keepRunningThread) {
                     audioRecord!!.read(buffer, 0, bufferSize)
                     // split buffer into 2
                     audioBufferUpdated(buffer.sliceArray(0 until (buffer.size/2)))
@@ -132,8 +141,8 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
             lastHeardFrequencies.removeFirst()
         }
         // check if it is START or END
-        val isStart: Boolean by lazy { encoder.isStartTransmission(lastHeardFrequencies, thresholdSize) }
-        val isEnd: Boolean by lazy { encoder.isEndTransmission(lastHeardFrequencies, thresholdSize) }
+        val isStart: Boolean by lazy { encoder.isStartTransmission(lastHeardFrequencies, queueThresholdSize) }
+        val isEnd: Boolean by lazy { encoder.isEndTransmission(lastHeardFrequencies, queueThresholdSize) }
         if (isStart) {
             listener.heardStartTransmission()
         } else if (isEnd) {
@@ -150,7 +159,7 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
     }
 
     fun close() {
-        go = false
+        keepRunningThread = false
         audioRecord?.release()
         recordingThread?.interrupt()
     }
