@@ -121,7 +121,7 @@ class AlphanumEncoder() {
                 if (sameAsAfter) droppedNeighbors.add(filtered[i])
             } else if (i == filtered.size - 1) {
                 if (sameAsBefore) droppedNeighbors.add(filtered[i])
-            } else if (sameAsAfter || sameAsBefore) {
+            } else if (sameAsAfter && sameAsBefore) {
                 droppedNeighbors.add(filtered[i])
             }
         }
