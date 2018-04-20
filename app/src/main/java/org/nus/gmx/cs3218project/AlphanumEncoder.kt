@@ -111,6 +111,7 @@ class AlphanumEncoder() {
         val filtered = clipped.filter { it is Character || it is Next }
 
         // drop all items without similar neighbors
+        // both left & right must be the same (with exception of first & last freq detected)
         val droppedNeighbors = ArrayList<AlphanumericGuess>()
 
         for (i in 0 until filtered.size) {
