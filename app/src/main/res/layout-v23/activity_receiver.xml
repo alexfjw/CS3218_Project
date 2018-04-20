@@ -43,7 +43,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:layout_gravity="center"
             android:text="@string/received"
             android:textAllCaps="false"
             android:textSize="18sp"/>
@@ -53,9 +53,8 @@
             android:layout_width="wrap_content"
             android:hyphenationFrequency="none"
             android:breakStrategy="simple"
+            android:layout_gravity="center"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textAllCaps="false"
             android:textSize="18sp"/>
 
     </LinearLayout>
