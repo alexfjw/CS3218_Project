@@ -24,7 +24,7 @@ class BroadcastActivity : AppCompatActivity() {
     private inner class Player : AsyncTask<String, Void, Void>() {
         override fun doInBackground(vararg freq: String): Void? {
             val freqs = AlphanumEncoder().stringToFrequencies(freq[0])
-            playSound(0.5f, freqs)
+            playSound(0.75f, freqs)
             return null
         }
 
