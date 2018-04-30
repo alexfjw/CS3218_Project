@@ -4,7 +4,10 @@ import android.media.AudioRecord
 import android.util.Log
 import edu.emory.mathcs.jtransforms.fft.FloatFFT_1D
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.math.abs
 import kotlin.math.cos
+import kotlin.math.pow
 
 interface SoundSamplerCallback {
     // no guarantees on when it is heard
@@ -109,7 +112,7 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
         // x2, to insert conjugate components
         val fftSize = windowSize * 2
         val fftObject = FloatFFT_1D(fftSize/2)
-        val interval: Float = FS/(fftSize.toFloat())
+        val interval: Float = FS/(fftSize.toFloat()/2)
 
         // take a few moving windows
         val highestFrequencies = ArrayList<Float>()
@@ -125,9 +128,13 @@ class SoundSampler(private val listener: SoundSamplerCallback) {
             fftObject.complexForward(fftBuffer)
 
             val leftHalf = fftBuffer.toMutableList().subList(0, fftBuffer.size/2)
+            val summed = FloatArray(leftHalf.size/2)
+            for (z in 0 until summed.size) {
+                summed[z] = abs(leftHalf[z*2]) + abs(leftHalf[z*2 + 1])
+            }
             // set dc to 0. we don't need it and, it's usually big
-            leftHalf[0] = 0.0f;
-            val largestIndex = leftHalf.indices.maxBy { leftHalf[it] } ?: 0
+            summed[0] = 0.0f;
+            val largestIndex = summed.indices.maxBy { summed[it] } ?: 0
             val firstFrequency: Float = largestIndex * interval
             if (firstFrequency > frequencyThreshold)
                 highestFrequencies.add(firstFrequency)
